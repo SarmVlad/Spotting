@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}MeteoLook{% endblock %}
+{% block links %}{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/index.css' %}">
+{% endblock %}
+{% block content %} {{ block.super }}
+<div class="container bg-dark">
+	{% if user.is_authenticated %}
+	{% endif %}
+	<p>fawd</p>
+	<p>fawd</p>
+	<p>fawd</p>
+	<p>fawd</p>
+	<p>fawd</p>
+	<p>fawd</p>
+	<p>fawd</p>
+	<p>fawd</p>
+
+	<p>fawd</p>
+	<p>fawd</p>
+	<p>fawd</p>
+	<p>fawd</p>
+	<p>fawd</p>
+	<p>fawd</p>
+	<p>fawd</p>
+	<p>fawd</p>
+	<p>fawd</p>
+	<p>fawd</p>
+	<p>fawd</p>
+	<p>fawd</p>
+	<p>fawd</p>
+	<p>fawd</p>
+	<p>fawd</p>
+	<p>fawd</p>
+	<p>fawd</p>
+	<p>fawd</p>
+</div>
+{% endblock %}
+{% block scripts %}{{ block.super }}
+<script type="text/javascript">
+	{% if user.is_authenticated %}
+
+	{% endif %}
+
+	function addSearchMarker(lat, lng, text=null){
+	var searchIcon = L.icon({
+	    iconUrl: '{% static "img/search-icon.png" %}',
+	    shadowUrl: '{% static "img/marker-shadow.png" %}'
+	});
+	if(SearchMarker != null){
+		SearchMarker.removeFrom(map);
+	}
+	SearchMarker = L.marker([lat, lng], {icon: searchIcon});
+	if(text != null)
+		SearchMarker.bindPopup(text).openPopup();
+	SearchMarker.addTo(map);
+	map.setView(new L.LatLng(lat, lng),5);
+	}
+</script>
+<script type="text/javascript" src="{% static 'js/index.js' %}"></script>
+{% endblock %}

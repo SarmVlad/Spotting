@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Зачекиниться{% endblock %}
+{% block links %}{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/checkin.css' %}">
+{% endblock %}
+{% block content %} {{ block.super }}
+<!-- Modal Places-->
+<div class="modal fade" id="PlacesModal" tabindex="-1" role="dialog" aria-labelledby="NearPlacesTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="NearPlacesTitle">Места рядом с вами</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container" id="places-container">
+                    <div class="row">
+                        <div class="card container-fluid mb-3" style="background: url({{user.photo.url}}) no-repeat center; background-size: 100%; height: 200px">
+                            <a href="#" style="text-decoration: none;" class="card-body">
+
+                                    <div class="row justify-content-between">
+                                        <h5 class="card-title col-8">Памятник Пушкину и его дорогой няне</h5>
+                                        <h6 class="card-title col-auto">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star-half"></i>
+                                        </h6>
+                                    </div>
+
+                            </a>
+                            <a href="#">
+                                <div class="card-footer text-center" style="background: none">Я здесь!</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End of Modal -->
+<div class="container bg-light">
+    <div class="row justify-content-center">
+        <div class="container text-center">
+            <h4 class="mt-3">Где вы находитесь?</h4>
+            <p >Выберите место на карте, или
+                <button  id="geo-btn" class="btn btn-link pl-0">определить местоположение автоматически</button>
+            </p>
+        </div>
+        <form action="{% url 'checkin' %}" class="col-sm-7" method="post" id="checkin-form" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="lat" id="lat-input">
+            <input type="hidden" name="lng" id="lng-input">
+            <div class="form-group">
+                <input class="address-input form-control" name="address" type="text" id="location-input" title="Воспользуйтесь картой или строкой поиска" placeholder="Ваше местоположение..." readonly required>
+            </div>
+            <div class="form-group">
+                <button type="button" id="places-btn" data-toggle="modal" data-target="#PlacesModal" class="btn btn-outline-dark btn-block" disabled>Мест рядом с вами не найдено</button>
+            </div>
+            <div class="form-group">
+                <label for="text">Прокомментируйте как-нибудь...</label>
+                <textarea id="text" name="text" class="form-control"></textarea>
+                <small id="emailHelp" class="form-text text-muted">...но можете этого не делать</small>
+            </div>
+            <div class="form-group">
+                <label for="customFile">Загрузите фотографии</label>
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="customFile" name="file">
+                    <label id="label-input" class="custom-file-label" for="customFile">Выберите изображение</label>
+                </div>
+            </div>
+            <button type="submit" id="checkin-btn" class="btn btn-primary">Check in!</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}{{ block.super }}
+<script type="text/javascript">
+    $(function(){
+    });
+</script>
+<script type="text/javascript" src="{% static 'js/checkin.js' %}"></script>
+{% endblock %}

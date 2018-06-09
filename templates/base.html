@@ -1,0 +1,151 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<title>{% block title %}{% endblock %}</title>
+    {% block links %}
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+	<link rel="stylesheet" href="{% static 'css/jquery-ui.min.css' %}">
+	<link rel="stylesheet" href="{% static 'leaflet/leaflet.css' %}">
+	<link rel="stylesheet" href="{% static  'markercluster/MarkerCluster.css'%}">
+	<link rel="stylesheet" href="{% static  'markercluster/MarkerCluster.Default.css'%}">
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+	<link rel="stylesheet" href="{% static  'css/base_style.css'%}">
+    {% endblock %}
+</head>
+<body class="scrollOn  pr-0">
+    {% block navbar %}
+	{% if not user.is_authenticated %}
+	<!-- Modal Sign Up-->
+	<div class="modal fade" id="signin" tabindex="1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+	    	<div class="modal-content">
+	      		<div class="modal-header">
+			      	<ul class="nav nav-tabs" id="signin-tabs" role="tablist">
+					  <li class="nav-item">
+					    <a class="nav-link" id="login-tab" data-toggle="tab" href="#login" role="tab" aria-controls="login" aria-selected="false">Вход</a>
+					  </li>
+					  <li class="nav-item">
+					    <a class="nav-link" id="reg-tab" data-toggle="tab" href="#reg" role="tab" aria-controls="reg" aria-selected="false">Регистрация</a>
+					  </li>
+					</ul>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+	      		</div>
+		        <div class="tab-content" id="myTabContent">
+				  	<div class="tab-pane fade show" id="login" role="tabpanel" aria-labelledby="login-tab">
+				      	<form action="{% url 'login' %}?next={{ next }}" id="login-form">
+						  	<div class="modal-body">
+								<div id="log-ok" class="alert alert-success" role="alert"></div>
+						  		<div id="log-alert" class="alert alert-danger" role="alert"></div>
+							    <input type="text" name="inputName" class="form-control mb-3" placeholder="Email или никнейм" required autofocus>
+							    <input type="password" name="inputPassword" class="form-control" placeholder="Пароль" required>
+								<hr>
+								<a href="#" id="passwordRecovery">Восстановить пароль</a>
+						    </div>
+						    <div class="modal-footer">
+						        <button id="get-log" class="btn btn-primary btn-block" type="submit">Войти</button>
+						    </div>
+				      	</form>
+				  	</div>
+				  	<div class="tab-pane fade" id="reg" role="tabpanel" aria-labelledby="reg-tab">
+				  		<form action="{% url 'reg' %}" id="reg-form">
+						  	<div class="modal-body">
+								<div id="reg-ok" class="alert alert-success" role="alert"></div>
+						  		<div id="reg-alert" class="alert alert-danger" role="alert"></div>
+						  		<input name="userName" type="text" id="userName" class="form-control mb-3" placeholder="Никнейм" required autofocus>
+							    <input name="email" type="email" id="inputEmailReg" class="form-control mb-3" placeholder="Email" required>
+							    <input type="password" id="inputPassword1" class="form-control mb-3" placeholder="Пароль" required>
+							    <input name="password" type="password" id="inputPassword2" class="form-control" placeholder="Повторите пароль" required>
+						    </div>
+						    <div class="modal-footer">
+						        <button id="get-reg" class="btn btn-primary btn-block" type="submit">Зарегистрироваться</button>
+						    </div>
+				      	</form>
+				  </div>
+				</div>
+	    	</div>
+	  	</div>
+	</div>
+	<!-- END of Modal Sign Up-->
+	{% endif %}
+	<nav class="navbar navbar-expand-md navbar-dark fixed-top py-1 ">
+		<a class="navbar-brand" href="{% url 'index' %}">Spotting</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+		        <span class="navbar-toggler-icon"></span>
+     	 </button>
+		<div class="collapse navbar-collapse justify-content-center" id="navbarCollapse">
+			<form id="geo_search" class="col-md-6 px-0 mr-3">
+				<input class="address-input form-control" type="text" placeholder="Поиск..." id="js-input" autocomplete="off">
+				<div class="box-form-list"></div>
+			</form>
+			<ul class="navbar-nav col-md-auto justify-content-end">
+                <li class="nav-item pr-3">
+					<button id="hidemap-btn" type="button" class="btn btn-link">Скрыть карту</button>
+				</li>
+				{% if user.is_authenticated %}
+				<li class="nav-item">
+					<a href="{% url 'account' user.id %}"><img src="{{ user.photo.url }}" width="40" height="40" class="rounded"></a>
+				</li>
+				 <li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Добавить</a>
+					<div class="dropdown-menu">
+					  <a class="dropdown-item" href="{% url 'checkin' %}">Отметку</a>
+					  <a class="dropdown-item" href="#">Отчет</a>
+					  <div class="dropdown-divider"></div>
+					  <a class="dropdown-item" href="#">Достопримечательность</a>
+					  <a class="dropdown-item" href="#">Развлечение</a>
+					  <a class="dropdown-item" href="#">Отель</a>
+					  <a class="dropdown-item" href="#">Ресторан</a>
+					</div>
+				  </li>
+				<li class="nav-item pr-3">
+					<button id="logout-btn" type="button" class="btn btn-outline-secondary">Выйти</button>
+				</li>
+				{% else %}
+				<li class="nav-item pr-3">
+					<button id="login-btn" type="button" class="btn btn-primary" data-toggle="modal" data-target="#signin">Войти</button>
+				</li>
+				<li class="nav-item">
+					<button id="reg-btn" type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#signin">Регистрация</button>
+				</li>
+				{% endif %}
+			</ul>
+		</div>
+	</nav>
+    {% endblock %}
+		<div class="wrapper">
+            {% block content %}
+            <div id="map" class="map">
+                <button type="button" class="screen-btn btn btn-light"><i class="fas fa-expand "></i></button>
+            </div>
+            {% endblock %}
+		</div>
+    {% block scripts %}
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+	<script type="text/javascript" src="{% static 'leaflet/leaflet.js' %}"></script>
+	<script type="text/javascript" src="{% static 'leaflet/leaflet-src.js' %}"></script>
+	<script type="text/javascript" src="{% static 'markercluster/leaflet.markercluster-src.js' %}"></script>
+	<script type="text/javascript" src="{% static 'js/base_script.js' %}"></script>
+    {% endblock %}
+	<script type="text/javascript">
+	$(function(){
+		{% if show_login %}
+				$('#signin').modal('show');
+				$('#signin-tabs li:first-child a').tab('show');
+		{% endif %}
+		{% if logOk %}
+				logOk("{{ logOk }}");
+		{% endif %}
+	});
+	</script>
+</body>
+</html>
